@@ -3,6 +3,7 @@
 // @namespace   www.lux01.co.uk
 // @description Hides tournament spoilers on the Liquipedia
 // @include     http://wiki.teamliquid.net/*
+// @exclude     http://wiki.teamliquid.net/hearthstone/*
 // @version     1.0.1a
 // @grant       none
 // @copyright   2015, William Woodhead (www.lux01.co.uk)
@@ -14,24 +15,29 @@ var matchWonFile = 'GreenCheck.png';
 
 function hide_spoilers() {
   // Disable the bold winner names
-  $('.bracket-team-top, .bracket-team-bottom, .bracket-player-top, .bracket-player-bottom').parent().each(function() {
+  $('.bracket-team-top, .bracket-team-middle, .bracket-team-bottom, .bracket-player-top, .bracket-player-bottom').parent().each(function() {
     $(this).css('font-weight','normal').off();
   });
   
   // Disable the mouse over highlight events
-  $('.bracket-team-top, .bracket-team-bottom, .bracket-player-top, .bracket-player-bottom').off();
+  $('.bracket-team-top, .bracket-team-middle, .bracket-team-bottom, .bracket-player-top, .bracket-player-bottom').off();
   
   // Hide the match results in the popup
   $('.bracket-game-details .matches').hide();
   
-  $('.bracket-team-top, .bracket-team-bottom').each(function() {
+  // Not all the wikis use .matches so we have got to improvise
+  $('.bracket-game-details').children('div:not(:first-child):not(:last-child)').hide();
+  
+  // Hide spoiler team names, icons and scores on the playoff tables
+  $('.bracket-team-top, .bracket-team-middle, .bracket-team-bottom').each(function() {
     $('.team-template-image', this).hide();
     $('.team-template-text', this).hide();
     $('.bracket-score', this).hide();
   });
   
   // SC2 doesn't use teams, it uses players
-  $('.bracket-player-top, .bracket-player-bottom').each(function() {
+  $('.bracket-player-top, .bracket-team-middle, .bracket-player-bottom').each(function() {
+    $(this).data('old-color', $(this).css('background-color'));
     $(this).css('background-color','rgb(242,232,184)');
     $('span, img, .bracket-score', this).hide();
   });
@@ -53,33 +59,45 @@ function hide_spoilers() {
     var bestOf = 2 * Math.max(lefties, righties) - 1;
     
     var showNext = $(document.createElement('button')).text('Show next VOD').data('shown', 1);
-    $(this).find('.icons .plainlinks:gt(0)').hide();
+    $(this).find('.icons .plainlinks:gt(0), .bracket-icons .plainlinks:gt(0)').hide();
+    $(this).find('.bracket-icons > :not(a, .plainlinks), .bracket-icons > a[href^="http://www.hltv.org/"], .bracket-icons > a[href^="https://www.hltv.org/""]').hide();
     var showSpoilersButton = $(document.createElement('button')).text('Show spoilers');
     
     showNext.click(function(evt) {
       var shown = $(evt.target).data('shown');
-      $(evt.target).siblings('.plainlinks:lt(' + ($(evt.target).data('shown') + 1) + ')').show();
-      $(evt.target).data('shown', shown + 1);
+      var parent = $(evt.target).closest('.bracket-game-details');
       
-      var numLinks = $(evt.target).siblings('.plainlinks').length;
-      if(shown + 1 > numLinks || shown + 1 == bestOf)
+      $('span.plainlinks:lt(' + ($(evt.target).data('shown') + 1) + ')', parent).show();
+      $(evt.target).data('shown', shown + 1);
+      var numLinks = $('span.plainlinks', parent).length;
+
+      if(shown + 1 > numLinks || (bestOf > 0 && shown + 1 == bestOf))
         $(evt.target).remove();
     });
     
     showSpoilersButton.click(function(evt) {
-      $(evt.target).closest('.bracket-game-details').find('.matches').show();
-      $(evt.target).closest('.bracket-game-details').find('.plainlinks').show();
-      
+      var bgds = $(evt.target).closest('.bracket-game-details');
+      $('.matches', bgds).show();
+      $('.plainlinks', bgds).show();
+      $('.icons .plainlinks:gt(0), .bracket-icons .plainlinks:gt(0)', bgds).show();
+      $('.bracket-icons > :not(.plainlinks)', bgds).show();
+
       var game = $(evt.target).parent().parent().parent();
-      console.log(game);
       $('.team-template-image, .team-template-text, .bracket-score', game).show();
-      
+      $('.bracket-player-top, .bracket-player-bottom', game).show()
+      $('img, span, .bracket-score', game).show();
+      $('.bracket-player-top, .bracket-player-bottom', game).each(function () {
+        $(this).css('background-color', $(this).data('old-color'));
+      });
+      $('.bracket-game-details', game).children('div').show();
       $(showNext).remove();
       $(showSpoilersButton).remove();
-      
     });
     
-    $(this).find('.icons').append(showNext).append(showSpoilersButton);
+    var showSpoilersDiv = $(document.createElement('div'));
+    showSpoilersDiv.append(showNext);
+    showSpoilersDiv.append(showSpoilersButton);
+    showSpoilersDiv.insertAfter($('div:last', this));
   });
 
   // Remove the click behaviour from the info button and make the entire
@@ -101,6 +119,38 @@ function hide_spoilers() {
       }
     });
   });
+  
+  // Tournament info box spoilers
+  $('.infobox-center span[title="First Place"]').parent().hide();
+  $('.infobox-center span[title="Second Place"]').parent().hide();
+  $('.infobox-center span[title="Third Place"]').parent().hide();
+  $('.infobox-center span[title="Fourth Place"]').parent().hide();
+  $('.infobox-center span[title="Semifinalist(s)"]').parent().hide();
+  
+  // Create the show spoilers button for the infobox
+  var showSpoilersInfoBoxContainer = $(document.createElement('div')).css('text-align', 'center');
+  var showSpoilersInfoBoxDiv = $(document.createElement('div')).attr('class', 'infobox-center');
+  var showSpoilersInfoBoxButton = $(document.createElement('button')).text('Show spoilers');
+  showSpoilersInfoBoxButton.click(function () {
+    $('.infobox-center span[title="First Place"]').parent().show();
+    $('.infobox-center span[title="Second Place"]').parent().show();
+    $('.infobox-center span[title="Third Place"]').parent().show();
+    $('.infobox-center span[title="Fourth Place"]').parent().show();
+    $('.infobox-center span[title="Semifinalist(s)"]').parent().show();
+    showSpoilersInfoBoxContainer.remove();
+  });
+  showSpoilersInfoBoxDiv.append(showSpoilersInfoBoxButton);
+  showSpoilersInfoBoxContainer.append(showSpoilersInfoBoxDiv);
+  $('.infobox-center span[title="First Place"]').parent().parent().append(showSpoilersInfoBoxContainer);
+  
+  // Hide the prizepool table
+  $('table.prizepooltable').hide();
+  var showSpoilersPrizePool = $(document.createElement('button')).text('Show prize pool');
+  showSpoilersPrizePool.click(function() {
+    $('table.prizepooltable').show();
+    showSpoilersPrizePool.remove();
+  });
+  showSpoilersPrizePool.insertAfter($('table.prizepooltable'));
 }
 
 window.addEventListener('load', function() {
