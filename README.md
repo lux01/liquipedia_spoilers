@@ -22,11 +22,8 @@ The script should automatically load anytime you visit a [Liquipedia][liquipedia
 ## Known Issues/Wishlist
 
 * Only hides spoiler information on playoff style results.
-* Does *not* hide spoilers in the tournament infobox.
-* Does *not* hide group stage spoilers
-* Does *not* hide prizepool tables
-* Does *not* hide map details or VODs properly for *CS:GO* or *SC2*.
 * If there are no VODs or live report thread for that game then the show spoilers button is not shown.
+* Hearthstone wiki is currently disabled due to bugs.
 
 [greasemonkey]: https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
 [liquipedia]: http://wiki.teamliquid.net
