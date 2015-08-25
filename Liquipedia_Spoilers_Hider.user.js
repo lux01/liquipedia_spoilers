@@ -3,7 +3,7 @@
 // @namespace   www.lux01.co.uk
 // @description Hides tournament spoilers on the Liquipedia
 // @include     http://wiki.teamliquid.net/*
-// @version     1
+// @version     1.0.1a
 // @grant       none
 // @copyright   2015, William Woodhead (www.lux01.co.uk)
 // @license     MIT License
@@ -14,27 +14,26 @@ var matchWonFile = 'GreenCheck.png';
 
 function hide_spoilers() {
   // Disable the bold winner names
-  $('.bracket-team-top, .bracket-team-bottom').parent().each(function() {
+  $('.bracket-team-top, .bracket-team-bottom, .bracket-player-top, .bracket-player-bottom').parent().each(function() {
     $(this).css('font-weight','normal').off();
   });
   
   // Disable the mouse over highlight events
-  $('.bracket-team-top').off();
-  $('.bracket-team-bottom').off();
+  $('.bracket-team-top, .bracket-team-bottom, .bracket-player-top, .bracket-player-bottom').off();
   
-  // Hide the match results in the 
+  // Hide the match results in the popup
   $('.bracket-game-details .matches').hide();
   
-  $('.bracket-team-top').each(function() {
+  $('.bracket-team-top, .bracket-team-bottom').each(function() {
     $('.team-template-image', this).hide();
     $('.team-template-text', this).hide();
     $('.bracket-score', this).hide();
   });
   
-  $('.bracket-team-bottom').each(function () {
-    $('.team-template-image', this).hide();
-    $('.team-template-text', this).hide();
-    $('.bracket-score', this).hide();
+  // SC2 doesn't use teams, it uses players
+  $('.bracket-player-top, .bracket-player-bottom').each(function() {
+    $(this).css('background-color','rgb(242,232,184)');
+    $('span, img, .bracket-score', this).hide();
   });
   
   // Calculate how many "watch" icons are shown and generate dummy ones
