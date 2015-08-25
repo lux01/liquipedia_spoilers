@@ -21,8 +21,7 @@ The script should automatically load anytime you visit a [Liquipedia][liquipedia
 
 ## Known Issues/Wishlist
 
-* Only hides spoiler information on playoff style results.
-* If there are no VODs or live report thread for that game then the show spoilers button is not shown.
+* Does not hide group stage spoilers.
 * Hearthstone wiki is currently disabled due to bugs.
 
 [greasemonkey]: https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
